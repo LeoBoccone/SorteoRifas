@@ -1,9 +1,4 @@
-import javafx.scene.control.Alert;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -25,15 +20,9 @@ public class PSQLHelper {
         try {
             mainProperties.load(new FileInputStream(propertiesPath + "/SorteoRifas.properties"));
         } catch (FileNotFoundException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No se ha encontrado el archivo de configuracion.");
-            alert.setResizable(true);
-            alert.showAndWait();
-            System.exit(1);
+            System.out.println("file not found");
         } catch (IOException e){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Ha abido un problema leyendo el archivo de configuracion, verifique que el mismo no este corrupto.");
-            alert.setResizable(true);
-            alert.showAndWait();
-            System.exit(1);
+            System.out.println("ioexeption");
         }
 
         USERNAME = mainProperties.getProperty("psqldb.usuario");

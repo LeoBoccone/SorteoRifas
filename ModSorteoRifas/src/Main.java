@@ -19,6 +19,7 @@ public class Main extends JPanel
 
     public Main() {
         super(new BorderLayout());
+        PSQLHelper.psqlSetVars();
 
         log = new JTextArea(5,20);
         log.setMargin(new Insets(5,5,5,5));
