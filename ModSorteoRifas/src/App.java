@@ -25,7 +25,6 @@ public class App
     private static final String FILENAME_ACOMPANANTES = PATH_PROJECT.concat("Acompanantes.txt");
     private static String FILENAME_PEDIDOS_INICIAL = PATH_PROJECT;
     private static String FILENAME_PEDIDOS_EXTRA = PATH_PROJECT;
-	private static String FILENAME_RIFAS_DISPONIBLES = PATH_PROJECT;
 
 	private static Integer primerRifa = 1000;
 	private static Integer ultimaRifa = 80999;
@@ -56,7 +55,7 @@ public class App
 		}
         initializeTitulares();
         initializeAcompanantes();
-        if (!FILENAME_PEDIDOS_EXTRA.equals(PATH_PROJECT) && !FILENAME_RIFAS_DISPONIBLES.equals(PATH_PROJECT)) {
+        if (!FILENAME_PEDIDOS_EXTRA.equals(PATH_PROJECT)) {
             initializePedidosExtra();
         }
 		initializeRifas();
@@ -133,24 +132,6 @@ public class App
         if (!FILENAME_PEDIDOS_INICIAL.equals(PATH_PROJECT)) {
             Main.logMessage("# Rifas emitidas inicialmente: " + rifasDisponibles.size());
             initializeAsignacionRifasPedidas();
-        }
-        else if (!FILENAME_PEDIDOS_EXTRA.equals(PATH_PROJECT) && !FILENAME_RIFAS_DISPONIBLES.equals(PATH_PROJECT)) {
-            try (BufferedReader br = new BufferedReader(new FileReader(FILENAME_RIFAS_DISPONIBLES))) {
-                String rifaStr;
-                Integer rifa;
-                while ((rifaStr = br.readLine()) != null) {
-                    rifa = Integer.valueOf(rifaStr);
-                    rifasDisponibles.add(rifa);
-                    if (rifa < primerRifa) {
-                        primerRifa = rifa;
-                    }
-                    if (rifa > ultimaRifa) {
-                        ultimaRifa = rifa;
-                    }
-                }
-            } catch (IOException e) {
-                throw e;
-            }
         }
 
         System.out.println("# FIN - initializePrimerasRifas");
@@ -451,13 +432,11 @@ public class App
     public static void sortear( String[] args ) throws Exception
     {
         if (args.length == 2 && args[0] != null && args[1] != null){
-            FILENAME_PEDIDOS_EXTRA = FILENAME_PEDIDOS_EXTRA.concat(args[0]);
-            FILENAME_RIFAS_DISPONIBLES = FILENAME_RIFAS_DISPONIBLES.concat(args[1]);
+            FILENAME_PEDIDOS_EXTRA = args[0];
         } else if (args.length == 1 && args[0] != null){
-            FILENAME_PEDIDOS_INICIAL = FILENAME_PEDIDOS_INICIAL.concat(args[0]);
+            FILENAME_PEDIDOS_INICIAL = args[0];
         }
         Main.logMessage("******************** FILENAME_PEDIDOS_EXTRA: " + FILENAME_PEDIDOS_EXTRA);
-        Main.logMessage("******************** FILENAME_RIFAS_DISPONIBLES: " + FILENAME_RIFAS_DISPONIBLES);
         PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
         System.setOut(out);
     	System.out.println();

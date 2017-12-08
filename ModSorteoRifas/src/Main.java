@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Main extends JPanel
                              implements ActionListener {
     static private final String newline = "\n";
-    private JButton botonPedidosIniciales, botonPedidosExtra, botonRifasDisponibles, botonSortear;
+    private JButton botonPedidosIniciales, botonPedidosExtra, botonSortear;
     private static JTextArea log;
     private JFileChooser fc;
     private boolean pedidosInicialesDefinida = false;
@@ -15,7 +15,6 @@ public class Main extends JPanel
     private boolean rifasDisponiblesDefinida = false;
     public static String FILENAME_PEDIDOS_INICIALES_AUX = null;
     public static String FILENAME_PEDIDOS_EXTRA_AUX = null;
-    public static String FILENAME_RIFAS_DISPONIBLES_AUX = null;
 
     public Main() {
         super(new BorderLayout());
@@ -34,16 +33,12 @@ public class Main extends JPanel
         botonPedidosExtra = new JButton("Cargar pedidos extra");
         botonPedidosExtra.addActionListener(this);
         
-        botonRifasDisponibles = new JButton("Cargar rifas disponibles");
-        botonRifasDisponibles.addActionListener(this);
-        
         botonSortear = new JButton("SORTEAR !");
         botonSortear.addActionListener(this);
 
         JPanel buttonPanel = new JPanel(); //use FlowLayout
         buttonPanel.add(botonPedidosIniciales);
         buttonPanel.add(botonPedidosExtra);
-        buttonPanel.add(botonRifasDisponibles);
         buttonPanel.add(botonSortear);
 
         add(buttonPanel, BorderLayout.PAGE_START);
@@ -65,7 +60,7 @@ public class Main extends JPanel
             else {
                 if (pedidosExtraDefinida && rifasDisponiblesDefinida) {
                     logMessage("Se va a realizar el sorteo de las rifas extas.");
-                    String[] parameters = {FILENAME_PEDIDOS_EXTRA_AUX, FILENAME_RIFAS_DISPONIBLES_AUX};
+                    String[] parameters = {FILENAME_PEDIDOS_EXTRA_AUX};
                     try {
                         App.sortear(parameters);
                     } catch (Exception e) {
@@ -87,18 +82,13 @@ public class Main extends JPanel
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 if (actionEvent.getSource() == botonPedidosIniciales) {
-                    FILENAME_PEDIDOS_INICIALES_AUX = file.getName();
+                    FILENAME_PEDIDOS_INICIALES_AUX = file.getAbsolutePath();
                     pedidosInicialesDefinida = true;
-                    logMessage("Se cargó el archivo de Pedidos Iniciales: " + file.getName() + ".");
+                    logMessage("Se cargó el archivo de Pedidos Iniciales: " + file.getAbsolutePath() + ".");
                 } else if (actionEvent.getSource() == botonPedidosExtra) {
-                    FILENAME_PEDIDOS_EXTRA_AUX = file.getName();
+                    FILENAME_PEDIDOS_EXTRA_AUX = file.getAbsolutePath();
                     pedidosExtraDefinida = true;
-                    logMessage("Se cargó el archivo de Pedidos Extra: " + file.getName() + ".");
-                } else if (actionEvent.getSource() == botonRifasDisponibles) {
-                    FILENAME_RIFAS_DISPONIBLES_AUX = file.getName();
-                    rifasDisponiblesDefinida = true;
-                    logMessage("Se cargó el archivo de Rifas Disponibles: " + file.getName() + ".");
-
+                    logMessage("Se cargó el archivo de Pedidos Extra: " + file.getAbsolutePath() + ".");
                 } else {
                     logMessage("Acción cancelada por el usuario.");
                 }
