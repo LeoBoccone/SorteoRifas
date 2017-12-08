@@ -7,6 +7,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,39 +71,18 @@ public class App
 
     private static void initializeTitulares() throws IOException{
         System.out.println("# INICIO - initializeTitulares");
-        String idTitularStr;
-        Integer idTitular;
-        try (BufferedReader br = new BufferedReader(new FileReader(FILENAME_TITULARES))) {
-            while ((idTitularStr = br.readLine()) != null) {
-                idTitular = Integer.valueOf(idTitularStr);
-                Integrante integrante = new Integrante(idTitular, CANT_RIFAS_POR_INTEGRANTE);
-                integrantes.add(integrante);
-                integrantesPrimerasRifas.add(integrante);
-                cant_titulares++;
-            }
-        } catch (IOException e) {
-            throw e;
+
+        try {
+            Connection dbConnection = Controller.connect();
+            Statement stm = dbConnection.createStatement();
+            String query = "select * from \"Integrante\"";
+            System.out.println(query);
+            ResultSet result = stm.executeQuery(query);
+            dbConnection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         System.out.println("# FIN - initializeTitulares");
-    }
-
-    private static void initializeAcompanantes() throws IOException{
-        System.out.println("# INICIO - initializeAcompanantes");
-        String idTitularAsociado;
-        try (BufferedReader br = new BufferedReader(new FileReader(FILENAME_ACOMPANANTES))) {
-            while ((idTitularAsociado = br.readLine()) != null) {
-                Integrante integranteTitular = findIntegranteById(Integer.valueOf(idTitularAsociado), true);
-                if (integranteTitular == null) {
-                    System.out.println("ERROR: El titular número " + idTitularAsociado + " no existe por lo tanto no se le puede asociar acompañante. Verifique nuevamente");
-                }
-                integranteTitular.setConAcompanante(true);
-                integranteTitular.setCantRifasASortear(integranteTitular.getCantRifasASortear()*2);
-                cant_acompanantes++;
-            }
-        } catch (IOException e) {
-            throw e;
-        }
-        System.out.println("# FIN - initializeAcompanantes");
     }
 	
 	private static void initializePedidosExtra() throws IOException{
