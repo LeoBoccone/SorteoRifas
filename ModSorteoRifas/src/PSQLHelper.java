@@ -23,14 +23,14 @@ public class PSQLHelper {
         File jarPath=new File(PSQLHelper.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         String propertiesPath=jarPath.getParentFile().getAbsolutePath();
         try {
-            mainProperties.load(new FileInputStream(propertiesPath + "/PcGenio.properties"));
+            mainProperties.load(new FileInputStream(propertiesPath + "/SorteoRifas.properties"));
         } catch (FileNotFoundException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se ha encontrado el archivo de configuracion.");
             alert.setResizable(true);
             alert.showAndWait();
             System.exit(1);
         } catch (IOException e){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Ha abido un problema leyendoel archivo de configuracion, verifique que el mismo no este corrupto.");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Ha abido un problema leyendo el archivo de configuracion, verifique que el mismo no este corrupto.");
             alert.setResizable(true);
             alert.showAndWait();
             System.exit(1);
