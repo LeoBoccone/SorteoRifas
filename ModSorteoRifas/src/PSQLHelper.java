@@ -20,7 +20,7 @@ public class PSQLHelper {
         try {
             mainProperties.load(new FileInputStream(propertiesPath + "/SorteoRifas.properties"));
         } catch (FileNotFoundException e) {
-            System.out.println("file not found");
+            System.out.println("file not found "+propertiesPath);
         } catch (IOException e){
             System.out.println("ioexeption");
         }

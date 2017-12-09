@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class App {
@@ -34,7 +35,8 @@ public class App {
 	private static SortedMap<Integer, Integer> rifasAsignadas = new TreeMap<>();
 	private static ArrayList<Integer> rifasDisponibles = new ArrayList<>();
     private static ArrayList<Rifa> rifas = new ArrayList<>();
-	private static ArrayList<Integrante> integrantes = new ArrayList<>();
+    private static ArrayList<Favorito> favoritos = new ArrayList<>();
+	private static Map<Integer,Integrante> integrantes = new TreeMap<>();
     private static ArrayList<Integrante> integrantesPrimerasRifas = new ArrayList<>();
 
 	private static void initialize() throws Exception {
@@ -44,7 +46,7 @@ public class App {
         initializeFavoritos();
         initializeTitulares();
         if (!FILENAME_PEDIDOS_EXTRA.equals(PATH_PROJECT)) {
-            initializePedidosExtra();
+//            initializePedidosExtra();
         }
 		initializeRifas();
         Main.logMessage("# Rifas pedidas = " + cant_rifas_pedidas_total + " - Rifas disponibles sin pedir: " + rifasDisponibles.size());
@@ -89,7 +91,7 @@ public class App {
             result.next();
             while (!result.isAfterLast()){
                 Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"));
-                integrantes.add(inte);
+                integrantes.put(inte.getId(),inte);
                 result.next();
             }
         } catch (SQLException e) {
@@ -98,7 +100,7 @@ public class App {
         System.out.println("# FIN - initializeTitulares");
     }
 	
-	private static void initializePedidosExtra() throws IOException{
+	/*private static void initializePedidosExtra() throws IOException{
 		System.out.println("# INICIO - initializePedidosExtra");
 
 		if (Files.exists(Paths.get(FILENAME_PEDIDOS_EXTRA))) {
@@ -109,7 +111,7 @@ public class App {
                     cantRifasPedidas = linea.split("=")[1];
                     cant_rifas_pedidas_total += Integer.valueOf(cantRifasPedidas);
                     Integrante integrante = new Integrante(Integer.valueOf(idTitularStr), Integer.valueOf(cantRifasPedidas));
-                    integrantes.add(integrante);
+                    integrantes.put(integrante,integrante);
                     cant_titulares++;
                 }
             } catch (IOException e) {
@@ -117,7 +119,7 @@ public class App {
             }
         }
     	System.out.println("# FIN - initializePedidosExtra");
-    }
+    }*/
 	
 	private static void initializeRifas() throws Exception{
         System.out.println("# INICIO - initializeRifas");
@@ -279,7 +281,7 @@ public class App {
 	// ***********
 	
 	private static void printRifasXIntegrantes2Files() throws IOException {
-		for (Integrante integrante : integrantes) {
+		for (Integrante integrante : integrantes.values()) {
 			integrante.printRifas2File();
 			//integrante.printRifas2PDF();
 		}
@@ -347,7 +349,7 @@ public class App {
 	
 	private static Integer maxCantRifas() {
 		Integer max = 0;
-		for (Integrante integrante : integrantes) {
+		for (Integrante integrante : integrantes.values()) {
 			if (integrante.getSizeRifas() > max)
 				max = integrante.getSizeRifas();
 		}
@@ -356,7 +358,7 @@ public class App {
 	
 	private static Integer minCantRifas() {
 		Integer min = 99999;
-		for (Integrante integrante : integrantes) {
+		for (Integrante integrante : integrantes.values()) {
 			if (integrante.getSizeRifas() < min)
 				min = integrante.getSizeRifas();
 		}
@@ -371,7 +373,7 @@ public class App {
                 }
             }
         } else {
-            for (Integrante integrante : integrantes) {
+            for (Integrante integrante : integrantes.values()) {
                 if (integrante.getId().equals(idBuscado)) {
                     return integrante;
                 }
@@ -386,23 +388,48 @@ public class App {
 	// ******
 	
 	private static void executeSorteo() throws Exception {
-    	Integer rifa, posRifa, posIntegrante = 0;
+        try {
+            Connection dbConnection = Controller.connect();
+            Statement stm = dbConnection.createStatement();
+            String query = "select * from \"Favoritos\" order by random()";
+            System.out.println(query);
+            ResultSet result = stm.executeQuery(query);
+            dbConnection.close();
+            result.next();
 
-    	while (rifasDisponibles.size() > 0 && completos < cant_titulares){
-			posRifa = (int) (rnd.nextDouble() * rifasDisponibles.size());
-			rifa = rifasDisponibles.get(posRifa);
-			Integrante integrante = integrantes.get(posIntegrante);
-			while ((integrante.getSizeRifas() >= integrante.getCantRifasASortear()) && completos != cant_titulares) {
-				posIntegrante = nextIntegrante(posIntegrante, cant_titulares);
-				integrante = integrantes.get(posIntegrante);
-			}
-    		asignarRifa(rifa, integrante);
-    		posIntegrante = nextIntegrante(posIntegrante, cant_titulares);
-    	}
+            while (!result.isAfterLast()) {
+                Favorito favo = new Favorito(result.getString("Favorito"), String.valueOf(result.getInt("Integrante")), result.getBoolean("isExtra"));
+                favoritos.add(favo);
+                result.next();
+            }
+
+            for(Favorito fav : favoritos){
+                if(fav.isValid()){
+                    if(fav.favorito.length() == 3){
+                        setTerminacion(fav);
+                    }else{
+
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     	System.out.println("# Rifas disponibles post-sorteo: " + rifasDisponibles.size());
     	saveOutput();
 	}
-	
+
+	private static void setTerminacion(Favorito fav){
+        List<Rifa> terminacionRifas = rifas.stream().filter(p-> String.valueOf(p.getNumero()).endsWith((fav.favorito))).collect(Collectors.toList());
+        for(Rifa rif : terminacionRifas){
+            if(rif.getIntegrante() == null){
+                rif.setIntegrante(Integer.valueOf(fav.integrante));
+                Integrante inte = integrantes.get(Integer.valueOf(fav.integrante));
+                inte.getRifas().add(rif);
+                break;
+            }
+        }
+    }
 	private static void printResume() {
 		System.out.println();
         Main.logMessage("# ***************************************");

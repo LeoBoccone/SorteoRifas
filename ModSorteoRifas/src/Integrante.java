@@ -12,13 +12,13 @@ public class Integrante {
 	
 	private Integer id;
 	private boolean conAcompanante;
-	private ArrayList<Integer> rifas;
+	private ArrayList<Rifa> rifas;
 	private Integer cantRifasASortear;
 	
 	public Integrante(Integer id, Integer cantRifasASortear) {
 		this.id=id;
 		this.conAcompanante=false;
-		this.rifas= new ArrayList<Integer>();
+		this.rifas= new ArrayList<Rifa>();
 		this.cantRifasASortear=cantRifasASortear;
 	}
 
@@ -30,33 +30,20 @@ public class Integrante {
 		this.id = id;
 	}
 
-	public List<Integer> getRifas() {
+	public List<Rifa> getRifas() {
 		return rifas;
 	}
 
-	public void setRifas(ArrayList<Integer> rifas) {
+	public void setRifas(ArrayList<Rifa> rifas) {
 		this.rifas = rifas;
 	}
-	
-	public void sortRifas() {
-		Collections.sort(rifas);
-	}
-	
+
 	public Integer getSizeRifas() {
 		return rifas.size();
-	}
-
-	public void addRifa(Integer rifa) {
-		this.rifas.add(rifa);
-	}
-	
-	public void removeRifa(Integer rifa) {
-		this.rifas.remove(rifa);
 	}
 	
 	public void printRifas2File() {
 		try{
-			sortRifas();
 			List<String> lines;
 			Path file;
 			file = Paths.get(App.PATH_GENERADOS + this.id + ".txt");
@@ -68,7 +55,6 @@ public class Integrante {
 	}
 	
 	public void printRifas() {
-		sortRifas();
 		System.out.println("*********************");
 		System.out.println("ID Integrante: " + id);
 		System.out.println("Cantidad Rifas: " + getSizeRifas());
