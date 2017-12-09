@@ -36,7 +36,6 @@ public class App {
     private static ArrayList<Rifa> rifas = new ArrayList<>();
 	private static ArrayList<Integrante> integrantes = new ArrayList<>();
     private static ArrayList<Integrante> integrantesPrimerasRifas = new ArrayList<>();
-    private static Map<String, ArrayList<Favorito>> integranteToFavorito = new TreeMap<>();
 
 	private static void initialize() throws Exception {
 		if (!Files.isDirectory(Paths.get(PATH_GENERADOS))){
@@ -61,12 +60,8 @@ public class App {
             String query = "INSERT INTO \"Favoritos\" (\"ID\", \"Favorito\", \"Integrante\", \"isExtra\") VALUES ";
             for (CSVRecord favRecord : records) {
                 if (favRecord.get("Pregunta").toUpperCase().contains("NUMERO")) {
-                    if (!integranteToFavorito.containsKey(favRecord.get("Integrante"))) {
-                        integranteToFavorito.put(favRecord.get("Integrante"), new ArrayList<Favorito>());
-                    }
                     boolean isExtra = favRecord.get("Pregunta").toUpperCase().contains("ADICIONAL") ? true : false;
                     Favorito fav = new Favorito(favRecord.get("Respuesta"), favRecord.get("Integrante"), isExtra);
-                    integranteToFavorito.get(favRecord.get("Integrante")).add(fav);
                     String resp = favRecord.get("Respuesta").trim().isEmpty() ? "''" : "'"+favRecord.get("Respuesta")+"'";
                     query += "(uuid_generate_v4(), " + resp + ", " + favRecord.get("Integrante") + ", " + isExtra +"), ";
                 }

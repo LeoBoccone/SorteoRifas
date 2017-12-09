@@ -115,7 +115,7 @@ public class Main extends JPanel
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 UIManager.put("swing.boldMetal", Boolean.FALSE);
