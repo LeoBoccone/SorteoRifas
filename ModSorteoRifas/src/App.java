@@ -58,7 +58,6 @@ public class App
 			Files.createDirectory(Paths.get(PATH_GENERADOS));
 		}
         initializeTitulares();
-        initializeAcompanantes();
         if (!FILENAME_PEDIDOS_EXTRA.equals(PATH_PROJECT)) {
             initializePedidosExtra();
         }
@@ -69,16 +68,22 @@ public class App
 		}
 	}
 
-    private static void initializeTitulares() throws IOException{
+    private static void initializeTitulares() {
         System.out.println("# INICIO - initializeTitulares");
 
         try {
             Connection dbConnection = Controller.connect();
             Statement stm = dbConnection.createStatement();
             String query = "select * from \"Integrante\"";
-            System.out.println(query);
             ResultSet result = stm.executeQuery(query);
             dbConnection.close();
+            result.next();
+            while (!result.isLast()){
+                Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"));
+                integrantes.add(inte);
+                result.next();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
