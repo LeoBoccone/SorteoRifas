@@ -19,8 +19,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 
-public class App
-{
+public class App {
+
 	public static final String PATH_PROJECT = System.getProperty("user.dir").concat("/");
 	public static final String PATH_GENERADOS = PATH_PROJECT.concat("generados/");
 	private static final String TOTAL_CSV = PATH_PROJECT.concat("generados/TOTAL.csv");
@@ -43,6 +43,7 @@ public class App
 	private static Random rnd = new Random();
 	private static SortedMap<Integer, Integer> rifasAsignadas = new TreeMap<>();
 	private static ArrayList<Integer> rifasDisponibles = new ArrayList<>();
+    private static ArrayList<Rifa> rifas = new ArrayList<>();
 	private static ArrayList<Integrante> integrantes = new ArrayList<>();
     private static ArrayList<Integrante> integrantesPrimerasRifas = new ArrayList<>();
 	
@@ -78,7 +79,7 @@ public class App
             ResultSet result = stm.executeQuery(query);
             dbConnection.close();
             result.next();
-            while (!result.isLast()){
+            while (!result.isAfterLast()){
                 Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"));
                 integrantes.add(inte);
                 result.next();
@@ -112,17 +113,27 @@ public class App
     }
 	
 	private static void initializeRifas() throws Exception{
-		System.out.println("# INICIO - initializePrimerasRifas");
+        System.out.println("# INICIO - initializeRifas");
+        try {
+            Connection dbConnection = Controller.connect();
+            Statement stm = dbConnection.createStatement();
+            String query = "select * from \"Rifa\"";
+            System.out.println(query);
+            ResultSet result = stm.executeQuery(query);
+            dbConnection.close();
+            result.next();
 
-        for (Integer i=primerRifa;i<=ultimaRifa;i++){
-            rifasDisponibles.add(i);
-        }
-        if (!FILENAME_PEDIDOS_INICIAL.equals(PATH_PROJECT)) {
-            Main.logMessage("# Rifas emitidas inicialmente: " + rifasDisponibles.size());
-            initializeAsignacionRifasPedidas();
+            while(!result.isAfterLast()){
+                Rifa rifa = new Rifa( result.getInt("Integrante"),result.getInt("Numero"));
+                rifas.add(rifa);
+                result.next();
+            }
+            System.out.println(rifas);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        System.out.println("# FIN - initializePrimerasRifas");
+        System.out.println("# FIN - initializeRifas");
     }
 
     private static void initializeAsignacionRifasPedidas() throws Exception {
@@ -384,7 +395,7 @@ public class App
 	
 	private static void executeSorteo() throws Exception {
     	Integer rifa, posRifa, posIntegrante = 0;
-    	
+
     	while (rifasDisponibles.size() > 0 && completos < cant_titulares){
 			posRifa = (int) (rnd.nextDouble() * rifasDisponibles.size());
 			rifa = rifasDisponibles.get(posRifa);
