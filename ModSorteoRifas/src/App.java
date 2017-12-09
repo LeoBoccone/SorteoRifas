@@ -1,7 +1,6 @@
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import javax.swing.text.html.CSS;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -20,13 +19,9 @@ public class App {
 	public static final String PATH_GENERADOS = PATH_PROJECT.concat("generados/");
 	private static final String TOTAL_CSV = PATH_PROJECT.concat("generados/TOTAL.csv");
 	private static final String TOTAL_AUN_DISPONIBLES_TXT = PATH_PROJECT.concat("generados/TOTAL_AUN_DISPONIBLES.txt");
-    private static final String FILENAME_TITULARES = PATH_PROJECT.concat("Titulares.txt");
-    private static final String FILENAME_ACOMPANANTES = PATH_PROJECT.concat("Acompanantes.txt");
     private static String FILENAME_PEDIDOS_INICIAL = PATH_PROJECT;
     private static String FILENAME_PEDIDOS_EXTRA = PATH_PROJECT;
 
-	private static Integer primerRifa = 1000;
-	private static Integer ultimaRifa = 80999;
 	private static final Integer MAX_INTENTOS_TERMINACION = 1000;
 	private static final Integer CANT_RIFAS_POR_INTEGRANTE = 100;
 	private static final Integer MAX_RIFAS_A_PEDIR = 5;
@@ -168,7 +163,7 @@ public class App {
                     termination = rifa.substring(1);
                     rifa = sortTermination(termination).toString();
                     Integer intentos = 0;
-                    while ((!isRifaValida(rifa) || isRifaAsignada(Integer.valueOf(rifa))) && intentos < MAX_INTENTOS_TERMINACION) {
+                    while ((isRifaAsignada(Integer.valueOf(rifa))) && intentos < MAX_INTENTOS_TERMINACION) {
                         rifa = sortTermination(termination).toString();
                         intentos++;
                     }
@@ -192,10 +187,6 @@ public class App {
             throw e;
         }
         System.out.println("# FIN - initializeAsignacionRifasPedidas");
-    }
-
-    private static boolean isRifaValida(String rifa) {
-        return (Integer.valueOf(rifa) >= primerRifa && Integer.valueOf(rifa) <= ultimaRifa);
     }
 	
 	// **********
@@ -235,18 +226,7 @@ public class App {
     }
 
 	private static void asignarRifa(Integer rifa, Integrante integrante) throws Exception {
-        if (rifa < primerRifa || rifa > ultimaRifa) {
-            Main.logMessage("****** EL NÚMERO DE RIFA " + rifa + " NO ESTÁ EN EL RANGO DE RIFAS VÁLIDAS: (" + primerRifa + "," + ultimaRifa + ")");
-            Exception e = new Exception();
-            throw e;
-        } else {
-            integrante.addRifa(rifa);
-            rifasAsignadas.put(rifa, integrante.getId());
-            rifasDisponibles.remove(rifa);
-            if (integrante.getSizeRifas().equals(integrante.getCantRifasASortear())) {
-                completos++;
-            }
-        }
+
 	}
 
     private static Integer getMaxRifasAPedir(Integrante integrante){

@@ -13,4 +13,18 @@ public class Favorito {
         this.isExtra = isExtra;
     }
 
+    public boolean isValid() {
+        String tempFavorito = this.favorito.replaceAll("\\D", "");
+
+        boolean valid = true;
+
+        if (tempFavorito.isEmpty() || tempFavorito.length() < 3 || tempFavorito.length() > 5) {
+            valid = false;
+        } else if (Integer.valueOf(tempFavorito) > 80999) {
+            valid = false;
+        }
+
+        return valid;
+    }
+
 }
