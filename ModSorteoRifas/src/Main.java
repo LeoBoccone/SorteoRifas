@@ -1,6 +1,10 @@
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.*;
 
@@ -12,13 +16,13 @@ public class Main extends JPanel
     private JFileChooser fc;
     private boolean pedidosInicialesDefinida = false;
     private boolean pedidosExtraDefinida = false;
-    private boolean rifasDisponiblesDefinida = false;
     public static String FILENAME_PEDIDOS_INICIALES_AUX = null;
     public static String FILENAME_PEDIDOS_EXTRA_AUX = null;
 
-    public Main() {
+    public Main() throws SQLException {
         super(new BorderLayout());
         PSQLHelper.psqlSetVars();
+
 
         log = new JTextArea(5,20);
         log.setMargin(new Insets(5,5,5,5));
@@ -58,7 +62,7 @@ public class Main extends JPanel
                 logMessage("FIN");
             }
             else {
-                if (pedidosExtraDefinida && rifasDisponiblesDefinida) {
+                if (pedidosExtraDefinida) {
                     logMessage("Se va a realizar el sorteo de las rifas extas.");
                     String[] parameters = {FILENAME_PEDIDOS_EXTRA_AUX};
                     try {
@@ -67,12 +71,10 @@ public class Main extends JPanel
                         e.printStackTrace();
                     }
                 } else {
-                    if (!pedidosExtraDefinida && !rifasDisponiblesDefinida) {
+                    if (!pedidosExtraDefinida) {
                         logMessage("Todavía no se seleccionó ningún archivo.");
                     } else if (pedidosExtraDefinida) {
                         logMessage("Todavía no se seleccionó el archivo de Disponibles.");
-                    } else if (rifasDisponiblesDefinida) {
-                        logMessage("Todavía no se seleccionó el archivo de Pedidos.");
                     }
                 }
                 log.setCaretPosition(log.getDocument().getLength());
@@ -103,7 +105,7 @@ public class Main extends JPanel
         System.err.println("--- " + message);
     }
 
-    private static void createAndShowGUI() {
+    private static void createAndShowGUI() throws SQLException {
         JFrame frame = new JFrame("Sorteo Rifas Extra - CCEEA");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -117,7 +119,11 @@ public class Main extends JPanel
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 UIManager.put("swing.boldMetal", Boolean.FALSE);
-                createAndShowGUI();
+                try {
+                    createAndShowGUI();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
