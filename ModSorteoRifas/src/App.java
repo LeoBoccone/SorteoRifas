@@ -1,8 +1,8 @@
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+
+import javax.swing.text.html.CSS;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,12 +11,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 
 public class App {
@@ -46,18 +41,13 @@ public class App {
     private static ArrayList<Rifa> rifas = new ArrayList<>();
 	private static ArrayList<Integrante> integrantes = new ArrayList<>();
     private static ArrayList<Integrante> integrantesPrimerasRifas = new ArrayList<>();
-	
-	
-	// **************
-	// INICIALIZACIÓN
-	// **************
-
-	private App(){}
+    private static Map<String, ArrayList<Favorito>> integranteToFavorito = new TreeMap<>();
 
 	private static void initialize() throws Exception {
 		if (!Files.isDirectory(Paths.get(PATH_GENERADOS))){
 			Files.createDirectory(Paths.get(PATH_GENERADOS));
 		}
+        initializeFavoritos();
         initializeTitulares();
         if (!FILENAME_PEDIDOS_EXTRA.equals(PATH_PROJECT)) {
             initializePedidosExtra();
@@ -69,9 +59,37 @@ public class App {
 		}
 	}
 
+	private static void initializeFavoritos() {
+        try {
+            Reader in = new FileReader(FILENAME_PEDIDOS_INICIAL);
+            List<CSVRecord> records = CSVFormat.RFC4180.withHeader().parse(in).getRecords();
+            String query = "INSERT INTO \"Favoritos\" (\"ID\", \"Favorito\", \"Integrante\", \"isExtra\") VALUES ";
+            for (CSVRecord favRecord : records) {
+                if (favRecord.get("Pregunta").toUpperCase().contains("NUMERO")) {
+                    if (!integranteToFavorito.containsKey(favRecord.get("Integrante"))) {
+                        integranteToFavorito.put(favRecord.get("Integrante"), new ArrayList<Favorito>());
+                    }
+                    boolean isExtra = favRecord.get("Pregunta").toUpperCase().contains("ADICIONAL") ? true : false;
+                    Favorito fav = new Favorito(favRecord.get("Respuesta"), favRecord.get("Integrante"), isExtra);
+                    integranteToFavorito.get(favRecord.get("Integrante")).add(fav);
+                    String resp = favRecord.get("Respuesta").trim().isEmpty() ? "''" : "'"+favRecord.get("Respuesta")+"'";
+                    query += "(uuid_generate_v4(), " + resp + ", " + favRecord.get("Integrante") + ", " + isExtra +"), ";
+                }
+            }
+            query = query.substring(0, query.length()-2);
+            Connection dbConnection = Controller.connect();
+            Statement stm = dbConnection.createStatement();
+            stm.executeUpdate(query);
+            dbConnection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void initializeTitulares() {
         System.out.println("# INICIO - initializeTitulares");
-
         try {
             Connection dbConnection = Controller.connect();
             Statement stm = dbConnection.createStatement();
@@ -84,7 +102,6 @@ public class App {
                 integrantes.add(inte);
                 result.next();
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
