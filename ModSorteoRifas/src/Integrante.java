@@ -15,9 +15,9 @@ public class Integrante {
 	private ArrayList<Rifa> rifas;
 	private Integer cantRifasASortear;
 	
-	public Integrante(Integer id, Integer cantRifasASortear) {
+	public Integrante(Integer id, Integer cantRifasASortear,Boolean acompanante ) {
 		this.id=id;
-		this.conAcompanante=false;
+		this.conAcompanante = acompanante;
 		this.rifas= new ArrayList<Rifa>();
 		this.cantRifasASortear=cantRifasASortear;
 	}

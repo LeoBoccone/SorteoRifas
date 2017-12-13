@@ -30,6 +30,7 @@ public class App {
 
     public static Integer EnteroSeteado = 0;
     public static Integer TerminacionSeteado = 0;
+    public static Integer rifadisponibles = 0;
 
 	private static void initialize() throws Exception {
 		if (!Files.isDirectory(Paths.get(PATH_GENERADOS))){
@@ -75,7 +76,7 @@ public class App {
             dbConnection.close();
             result.next();
             while (!result.isAfterLast()){
-                Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"));
+                Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"), result.getBoolean("Acompanante"));
                 integrantes.put(inte.getId(),inte);
                 result.next();
             }
@@ -166,8 +167,10 @@ public class App {
                 }
             }
 
+            List<Rifa> auxRifas = new ArrayList<>(rifas.values());
+            Collections.shuffle(auxRifas);
             for(Integrante inte : integrantes.values()){
-                for(Rifa rif : rifas.values()){
+                for(Rifa rif : auxRifas){
                     if(rif.getIntegrante() == 0){
                         rif.setIntegrante(inte.getId());
                         inte.getRifas().add(rif);
@@ -175,11 +178,19 @@ public class App {
                     if(inte.isConAcompanante() && inte.getRifas().size() == 200){
                         break;
                     }
-                    if(!inte.isConAcompanante() && inte.getRifas().size() == 100){
+                    else if(!inte.isConAcompanante() && inte.getRifas().size() == 100){
                         break;
                     }
                 }
             }
+
+            for(Rifa rif : auxRifas){
+                if(rif.getIntegrante() == 0){
+                    rif.setIntegrante(888);
+                    rifadisponibles +=1;
+                }
+            }
+            updateRifas();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -217,15 +228,28 @@ public class App {
         }
     }
 
+    private static void updateRifas(){
+        try {
+            String query = "UPDATE  \"Rifa\" SET (\"Numero\", \"Integrante\") = ";
+            for (Rifa rifa : rifas.values()) {
+                query += "(" + rifa.getNumero() + ", " + rifa.getIntegrante() + "), ";
+            }
+            query = query.substring(0, query.length() - 2);
+            Connection dbConnection = Controller.connect();
+            Statement stm = dbConnection.createStatement();
+            stm.executeUpdate(query);
+            dbConnection.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 	private static void printResume() {
 		System.out.println();
         Main.logMessage("# ***************************************");
-        Main.logMessage("# Total titulares: ");
-        Main.logMessage("# Total acompañantes: ");
-        Main.logMessage("# Rifas sorteadas: ");
-        Main.logMessage("# Rifas disponibles: ");
-        Main.logMessage("# Max cantidad rifas integrante: ");
-        Main.logMessage("# Min cantidad rifas integrante: ");
+        Main.logMessage("# Total enteros: "+EnteroSeteado);
+        Main.logMessage("# Total terminaciones: "+TerminacionSeteado);
+        Main.logMessage("# Rifas disponibles: "+rifadisponibles);
         Main.logMessage("# ***************************************");
 		System.out.println();
 	}
