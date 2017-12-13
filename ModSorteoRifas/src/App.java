@@ -230,11 +230,13 @@ public class App {
 
     private static void updateRifas(){
         try {
-            String query = "UPDATE  \"Rifa\" SET (\"Numero\", \"Integrante\") = ";
+            String query = "UPDATE  \"Rifa\" SET \"Numero\" = c.rifaNumero, \"Integrante\" = c.integranteNumero from (values ";
             for (Rifa rifa : rifas.values()) {
                 query += "(" + rifa.getNumero() + ", " + rifa.getIntegrante() + "), ";
             }
             query = query.substring(0, query.length() - 2);
+            query +=") as c(rifaNumero, integranteNumero) where c.rifaNumero = \"Numero\" ";
+
             Connection dbConnection = Controller.connect();
             Statement stm = dbConnection.createStatement();
             stm.executeUpdate(query);
