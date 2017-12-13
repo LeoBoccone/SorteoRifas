@@ -14,9 +14,6 @@ public class Rifa {
         return Numero;
     }
 
-    public void setNumero(Integer numero) {
-        this.Numero = numero;
-    }
 
     public Integer getIntegrante() {
         return Integrante;

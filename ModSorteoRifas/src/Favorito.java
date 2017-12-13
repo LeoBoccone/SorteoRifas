@@ -15,7 +15,7 @@ public class Favorito {
 
     public boolean isValid() {
         String tempFavorito = this.favorito.replaceAll("\\D", "");
-
+        this.favorito = tempFavorito;
         boolean valid = true;
 
         if (tempFavorito.isEmpty() || tempFavorito.length() < 3 || tempFavorito.length() > 5) {
