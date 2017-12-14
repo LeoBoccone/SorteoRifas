@@ -217,13 +217,18 @@ public class App {
     private static void setEntero(Favorito fav){
         Rifa rif =  rifas.get(Integer.valueOf(fav.favorito));
         Integrante inte = integrantes.get(Integer.valueOf(fav.integrante));
-        if(rif.getIntegrante() != 0){
-            colisiones.add("Rifa "+rif.getNumero()+" pedida por "+fav.integrante +" ya asignada a "+rif.getIntegrante());
-        }else{
-            if((inte.isConAcompanante() && inte.getRifas().size() < 10) || (!inte.isConAcompanante() && inte.getRifas().size() < 5)){
-                rif.setIntegrante(inte.getId());
-                inte.getRifas().add(rif);
-                EnteroSeteado +=1;
+        if(rif != null && inte != null){
+            if(rif.getIntegrante() != 0){
+                colisiones.add("Rifa "+rif.getNumero()+" pedida por "+fav.integrante +" ya asignada a "+rif.getIntegrante());
+            }else{
+                if((inte.isConAcompanante() && inte.getRifas().size() < 10) || (!inte.isConAcompanante() && inte.getRifas().size() < 5)){
+                    if(inte.getId() == null){
+                        System.out.println();
+                    }
+                    rif.setIntegrante(inte.getId());
+                    inte.getRifas().add(rif);
+                    EnteroSeteado +=1;
+                }
             }
         }
     }
