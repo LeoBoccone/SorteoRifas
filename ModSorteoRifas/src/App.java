@@ -279,7 +279,7 @@ public class App {
             }
             Path file2 = Paths.get(TOTAL_CSV);
             Files.write(file2, lines2, Charset.forName("UTF-8"));
-            System.out.println( "# FIN - Creación archivo mapa CSV con todas las asignaciones en " + TOTAL_CSV);
+            System.err.println( "# FIN - Creación archivo mapa CSV con todas las asignaciones en " + TOTAL_CSV);
 
 
             // Colisiones
@@ -303,6 +303,8 @@ public class App {
             }
         }
         List<Rifa> rifasExtras = new ArrayList<>(rifas.values());
+        Collections.shuffle(rifasExtras);
+
         for(Extra ext : extras){
             Integrante inte = integrantes.get(ext.getIntegrante());
             if(inte.getCantExtra() == 0 || (inte.isConAcompanante() && inte.getCantExtra() == 1)){
@@ -341,6 +343,7 @@ public class App {
         }else{
             sorteoExtra();
         }
-        System.out.println( "# FIN PROGRAMA" );
+
+        System.err.println( "# FIN PROGRAMA" );
     }
 }
