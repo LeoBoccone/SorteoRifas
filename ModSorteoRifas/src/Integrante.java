@@ -42,4 +42,11 @@ public class Integrante {
 		return conAcompanante;
 	}
 
+	public Integer getCantExtra() {
+		return cantExtra;
+	}
+
+	public void setCantExtra(Integer cantExtra) {
+		this.cantExtra = cantExtra;
+	}
 }

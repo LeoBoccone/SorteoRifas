@@ -3,16 +3,16 @@ public class Extra {
     private Integer integrante;
     private Integer cantExtra;
 
-    public Extra(Integer id ,Integer cantExtra ) {
-        this.integrante=id;
+    public Extra(Integer integrante ,Integer cantExtra ) {
+        this.integrante=integrante;
         this.cantExtra=cantExtra;
     }
 
-    public Integer getId() {
+    public Integer getIntegrante() {
         return integrante;
     }
 
-    public void setId(Integer integrante) {
+    public void setIntegrante(Integer integrante) {
         this.integrante = integrante;
     }
 

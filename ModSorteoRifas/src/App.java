@@ -297,14 +297,24 @@ public class App {
         Reader in = new FileReader(FILENAME_PEDIDOS_EXTRA);
         List<CSVRecord> records = CSVFormat.RFC4180.withHeader().parse(in).getRecords();
         for (CSVRecord extRecord : records) {
-            if (extRecord.get("Pregunta").toUpperCase().contains("Cuantas rifas")) {
+            if (extRecord.get("Pregunta").toUpperCase().contains("CUANTAS RIFAS")) {
                 Extra ext = new Extra(Integer.valueOf(extRecord.get("Integrante")), Integer.valueOf(extRecord.get("Respuesta")));
                 extras.add(ext);
             }
         }
-
-
-
+        List<Rifa> rifasExtras = new ArrayList<>(rifas.values());
+        for(Extra ext : extras){
+            Integrante inte = integrantes.get(ext.getIntegrante());
+            if(inte.getCantExtra() == 0 || (inte.isConAcompanante() && inte.getCantExtra() == 1)){
+                for (int i = 0; i < ext.getCantExtra(); i++) {
+                    rifasExtras.get(i).setIntegrante(ext.getIntegrante());
+                    rifasExtras.remove(i);
+                }
+                inte.setCantExtra(inte.getCantExtra()+1);
+            }
+        }
+        updateRifas();
+        printTotalRifas2File();
     }
 
 	// ******************
