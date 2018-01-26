@@ -27,6 +27,7 @@ public class App {
     private static ArrayList<Favorito> favoritosExtra = new ArrayList<>();
 	private static Map<Integer,Integrante> integrantes = new TreeMap<>();
     private static ArrayList<String> colisiones = new ArrayList<>();
+    private static ArrayList<Extra> extras = new ArrayList<>();
 
     public static Integer EnteroSeteado = 0;
     public static Integer TerminacionSeteado = 0;
@@ -36,7 +37,9 @@ public class App {
 		if (!Files.isDirectory(Paths.get(PATH_GENERADOS))){
 			Files.createDirectory(Paths.get(PATH_GENERADOS));
 		}
-        initializeFavoritos();
+		if(FILENAME_PEDIDOS_INICIAL != PATH_PROJECT){
+            initializeFavoritos();
+        }
         initializeTitulares();
 		initializeRifas();
 	}
@@ -76,7 +79,7 @@ public class App {
             dbConnection.close();
             result.next();
             while (!result.isAfterLast()){
-                Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"), result.getBoolean("Acompanante"));
+                Integrante inte = new Integrante(result.getInt("Numero"), result.getInt("CantRifas"), result.getBoolean("Acompanante"),result.getInt("CantExtra"));
                 integrantes.put(inte.getId(),inte);
                 result.next();
             }
@@ -91,7 +94,13 @@ public class App {
         try {
             Connection dbConnection = Controller.connect();
             Statement stm = dbConnection.createStatement();
-            String query = "select * from \"Rifa\" order by random()";
+            String query ="";
+            if(FILENAME_PEDIDOS_INICIAL != PATH_PROJECT){
+                query = "select * from \"Rifa\" order by random()";
+            }else{
+                query = "select * from \"Rifa\" Where \"Integrante\" = 888 order by random()";
+            }
+
             System.out.println(query);
             ResultSet result = stm.executeQuery(query);
             dbConnection.close();
@@ -284,28 +293,44 @@ public class App {
         }
     }
 
+    private static void sorteoExtra() throws IOException {
+        Reader in = new FileReader(FILENAME_PEDIDOS_EXTRA);
+        List<CSVRecord> records = CSVFormat.RFC4180.withHeader().parse(in).getRecords();
+        for (CSVRecord extRecord : records) {
+            if (extRecord.get("Pregunta").toUpperCase().contains("Cuantas rifas")) {
+                Extra ext = new Extra(Integer.valueOf(extRecord.get("Integrante")), Integer.valueOf(extRecord.get("Respuesta")));
+                extras.add(ext);
+            }
+        }
+
+
+
+    }
+
 	// ******************
 	// PROGRAMA PRINCIPAL
 	// ******************
 	
-    public static void sortear( String[] args ) throws Exception
-    {
+    public static void sortear( String[] args ) throws Exception {
+
         if (args.length == 2 && args[0] != null && args[1] != null){
             FILENAME_PEDIDOS_EXTRA = args[0];
         } else if (args.length == 1 && args[0] != null){
             FILENAME_PEDIDOS_INICIAL = args[0];
         }
-        Main.logMessage("******************** FILENAME_PEDIDOS_EXTRA: " + FILENAME_PEDIDOS_EXTRA);
         PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
         System.setOut(out);
-    	System.out.println();
-    	System.out.println( "# INICIO PROGRAMA" );
-		Date fecha = new Date();
-		System.out.println("# FECHA: " + fecha);
-    	initialize();
-    	executeSorteo();
-    	printResume();
-    	System.out.println( "# FIN PROGRAMA" );
+        System.out.println();
+        System.out.println( "# INICIO PROGRAMA" );
+        Date fecha = new Date();
+        System.out.println("# FECHA: " + fecha);
+        initialize();
+        if(FILENAME_PEDIDOS_INICIAL != PATH_PROJECT){
+            executeSorteo();
+            printResume();
+        }else{
+            sorteoExtra();
+        }
+        System.out.println( "# FIN PROGRAMA" );
     }
-
 }

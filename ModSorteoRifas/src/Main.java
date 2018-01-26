@@ -64,7 +64,7 @@ public class Main extends JPanel
             else {
                 if (pedidosExtraDefinida) {
                     logMessage("Se va a realizar el sorteo de las rifas extas.");
-                    String[] parameters = {FILENAME_PEDIDOS_EXTRA_AUX};
+                    String[] parameters = {FILENAME_PEDIDOS_EXTRA_AUX,"Extra"};
                     try {
                         App.sortear(parameters);
                     } catch (Exception e) {
